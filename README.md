@@ -70,7 +70,7 @@ After the betting round ends, the current player completes the rest of their tur
 
 5. Play to the target. If the best posted score is mediocre, play balanced and avoid a blowup. If the best posted score is very low, get stingier early and chase a lower ceiling. A score above 150 isn't great, a score around 115 - 130 is decent, and a score below 100 is very good.
 
-6. Betting rules of thumb: raise mainly when your opener is genuinely strong, especially if a giant die rolled very low. Late position is stronger for betting because you already know the scores to beat. samll raises usually build the pot; large raises create real fold pressure.
+6. Betting rules of thumb: raise mainly when your opener is genuinely strong, especially if a giant die rolled very low. Late position is stronger for betting because you already know the scores to beat. small raises usually build the pot; large raises create real fold pressure.
 
 
 
