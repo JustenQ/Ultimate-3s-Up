@@ -102,13 +102,13 @@ After the betting round ends, the current player completes the rest of their tur
 # Quick Reference
 Win condition: lowest total score wins the pot.
 
-Betting Round: after each player's first roll and first keep selection.
+Betting round: after each player's first roll and first keep selection.
 
 Keep ladder: by roll number, 0, 1, 2, 3, 4, 5...
 
-Special Rules: The 13 face on the d36 counts as 0 and two dice saved.
+Special rules: the 13 face on the d36 counts as 0 and two dice saved.
 
-Pot Format: main pot plus side pots when a player goes all in.
+Pot format: main pot plus side pots when a player goes all in.
 
 
 
