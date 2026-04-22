@@ -17,9 +17,7 @@ This is a low score game; Add the values of all dice you save; Lowest score wins
 
 Any result of 3 counts as 0.
 
-On the d10, the 3 face and the 0 face both count as 0.
-
-On the d36, the 3 face and the 33 face both count as 0.
+On the d36, the 3 face and the 13 face both count as 0, and the 13 counts as two dice.
 
 All other results count as face value.
 
@@ -107,6 +105,8 @@ Win condition: lowest total score wins the pot.
 Betting Round: after each player's first roll and first keep selection.
 
 Keep ladder: by roll number, 0, 1, 2, 3, 4, 5...
+
+Special Rules: The 13 face on the d36 counts as 0 and two dice saved.
 
 Pot Format: main pot plus side pots when a player goes all in.
 
