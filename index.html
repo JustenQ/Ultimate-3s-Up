@@ -1,0 +1,1318 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="apple-touch-icon" sizes="180x180" href="/Ultimate-3s-Up/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/Ultimate-3s-Up/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/Ultimate-3s-Up/favicon-16x16.png">
+<link rel="manifest" href="/Ultimate-3s-Up/site.webmanifest">
+<title>Ultimate 3s Up</title>
+<style>
+  :root{
+    --bg:#0b0c10; --panel:#13151b; --panel2:#1a1d26; --panel3:#0f1116; --line:#2d3342;
+    --text:#f3f4f6; --muted:#aeb5c3; --good:#14331f; --good-line:#3aa163;
+    --warn:#3a2914; --warn-line:#c78c3c; --bad:#3a1818; --bad-line:#c45a5a;
+    --shadow:0 14px 40px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at top, #13161f 0%, #090a0d 55%, #06070a 100%);color:var(--text)}
+  .wrap{max-width:1600px;margin:0 auto;padding:20px}
+  h1{margin:0 0 6px;font-size:32px}
+  .sub{color:var(--muted);margin-bottom:16px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  button{border:none;border-radius:12px;padding:10px 14px;font-weight:800;background:#f4f4f5;color:#111;cursor:pointer;box-shadow:var(--shadow)}
+  button.secondary{background:#242936;color:#f4f4f5;border:1px solid #3b4255;box-shadow:none}
+  button.green{background:#dff7e8;color:#173320}
+  button.red{background:#fee2e2;color:#4a1212}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  input{background:#10131a;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit}
+  .layout{display:grid;grid-template-columns:360px minmax(0,1fr) 360px;gap:16px;align-items:start}
+  @media (max-width:1300px){.layout{grid-template-columns:1fr}}
+  .panel{background:rgba(19,21,27,.94);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+  .panel h2{margin:0 0 10px;font-size:18px}
+  .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:12px}
+  .stat .label{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .stat .value{font-size:22px;font-weight:900;line-height:1}
+  .status{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--panel3);font-size:14px;line-height:1.45}
+  .status.good{background:var(--good);border-color:var(--good-line)}
+  .status.warn{background:var(--warn);border-color:var(--warn-line)}
+  .status.bad{background:var(--bad);border-color:var(--bad-line)}
+  .rule{margin-top:12px;padding:12px;border-radius:14px;background:#0f1117;border:1px solid var(--line);font-size:13px;line-height:1.5;color:#d8dde8}
+  .section{margin-top:16px}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:#10131a;border:1px solid var(--line);font-size:12px;font-weight:800}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
+  .die{position:relative;min-height:126px;border-radius:16px;border:1px solid #3b4356;overflow:hidden;cursor:pointer;user-select:none;transition:transform .08s ease,border-color .12s ease,box-shadow .12s ease, opacity .2s ease;box-shadow: inset 0 1px 0 rgba(255,255,255,.05)}
+  .die:hover{transform:translateY(-1px);border-color:#6d79a0}
+  .die.selected{border-color:#7bb0ff;box-shadow:0 0 0 2px rgba(123,176,255,.28) inset}
+  .die.kept{cursor:default;border-color:#4c6b56}
+  .die.zero{box-shadow:0 0 0 1px rgba(74,179,104,.35) inset}
+  .die .top{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 8px 0 8px}
+  .die .badge{font-size:10px;font-weight:900;border-radius:999px;padding:3px 6px;background:rgba(255,255,255,.12);backdrop-filter: blur(2px)}
+  .die .icon{width:30px;height:30px;opacity:.95;overflow:visible;flex:0 0 auto}
+  .die .body{padding:6px 8px 10px 8px}
+  .die .dtype{font-size:12px;font-weight:900;letter-spacing:.2px}
+  .die .dlabel{font-size:11px;color:#dce3ef;opacity:.78;min-height:28px}
+  .die .face{font-size:30px;font-weight:900;line-height:1;margin-top:8px}
+  .die .score{font-size:12px;font-weight:800;margin-top:8px;opacity:.92}
+  .minor-theme{background:radial-gradient(circle at 20% 16%, rgba(255,255,255,.1) 0%, rgba(255,255,255,0) 30%),linear-gradient(180deg, #1f222b 0%, #111318 100%)}
+  .d3-theme{background:linear-gradient(180deg,#213034 0%, #11181a 100%)}
+  .d4-theme,.d5-theme,.d6-theme,.d7-theme,.d8-theme,.d9-theme,.d10-theme,.d11-theme,.d12-theme{background:linear-gradient(180deg,#1f2940 0%, #101623 100%)}
+  .d13-theme,.d14-theme,.d15-theme,.d16-theme,.d17-theme,.d18-theme,.d19-theme,.d20-theme,.d21-theme,.d22-theme,.d24-theme{background:linear-gradient(180deg,#2f243c 0%, #17111f 100%)}
+  .d30-theme,.d36-theme{background:linear-gradient(180deg,#3a251d 0%, #1a120f 100%)}
+  .d48-theme,.d60-theme{background:linear-gradient(180deg,#3f2510 0%, #1b120a 100%)}
+  .d100-theme,.d120-theme{background:linear-gradient(180deg,#3d1324 0%, #1a0c14 100%)}
+  .die.rolling{animation:shake .55s linear infinite;filter:brightness(1.06)}
+  .die.rolling .face,.die.rolling .score{opacity:0}
+  .die.rolling::after{content:"?";position:absolute;inset:auto 0 18px 0;text-align:center;font-size:34px;font-weight:900;color:#fff;opacity:.95}
+  @keyframes shake{0%{transform:translate(0,0) rotate(0deg)}15%{transform:translate(2px,-2px) rotate(-2deg)}30%{transform:translate(-2px,1px) rotate(2deg)}45%{transform:translate(2px,2px) rotate(-1deg)}60%{transform:translate(-1px,-2px) rotate(2deg)}75%{transform:translate(2px,1px) rotate(-2deg)}100%{transform:translate(0,0) rotate(0deg)}}
+  .history{display:flex;flex-direction:column;gap:10px}
+  .hist{border:1px solid var(--line);border-radius:14px;background:#101218;padding:10px 12px;font-size:13px;line-height:1.45}
+  .muted{color:var(--muted)}
+  .players{display:flex;flex-direction:column;gap:10px}
+  .player{border:1px solid var(--line);background:#10131a;border-radius:14px;padding:10px 12px}
+  .player .name{font-weight:900;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .player .meta{margin-top:6px;font-size:12px;color:#d9dee8;line-height:1.5}
+  .player.folded{opacity:.55}
+  .player.allin{box-shadow:0 0 0 1px rgba(255,208,117,.38) inset}
+  .log{max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+  .logline{font-size:13px;line-height:1.45;padding:8px 10px;border-radius:12px;background:#101218;border:1px solid var(--line)}
+  .bet-controls{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+  .inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .showdown{border:1px solid var(--line);border-radius:14px;background:#101218;padding:12px;font-size:13px;line-height:1.55}
+  .tiny{font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ultimate 3s Up</h1>
+  <div class="sub">52 dice, 3 opponents </div>
+
+  <div class="toolbar">
+    <button id="newRoundBtn">Start Next Round</button>
+    <button id="resetBanksBtn" class="secondary">Reset Banks to 100</button>
+    <button id="autoZerosBtn" class="secondary" disabled>Select All Zeroes</button>
+    <button id="clearBtn" class="secondary" disabled>Clear Selection</button>
+    <button id="advanceBtn" class="secondary" disabled>Keep Selected</button>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>Round State</h2>
+      <div class="stats">
+        <div class="stat"><div class="label">Round</div><div class="value" id="roundNum">0</div></div>
+        <div class="stat"><div class="label">Current turn</div><div class="value" id="turnPlayer">—</div></div>
+        <div class="stat"><div class="label">Current roll</div><div class="value" id="rollNum">—</div></div>
+        <div class="stat"><div class="label">Minimum keep</div><div class="value" id="minKeep">—</div></div>
+        <div class="stat"><div class="label">Selected</div><div class="value" id="selectedCount">0</div></div>
+        <div class="stat"><div class="label">Your subtotal</div><div class="value" id="subtotal">0</div></div>
+      </div>
+
+      <div class="pillrow">
+        <div class="pill">Minor dice: 25 d6s</div>
+        <div class="pill">Major dice: 25 dice</div>
+        <div class="pill">Greater dice: d100 and d120</div>
+      </div>
+
+      <div id="statusBox" class="status warn">Press <strong>Start Next Round</strong>. The previous round winner will go first.</div>
+
+      <div class="rule">
+        <strong>Scoring:</strong> 3 = 0 on all dice. On the d36, the 13 also scores as 0, and counts as two dice when kept.<br><br>
+        <strong>Climbing keep rule:</strong> On the first roll keeping is optional. After roll 2 keep at least 1. After roll 3 keep at least 2, and so on.<br><br>
+        <strong>Betting simulation:</strong> every player's first keep opens a betting round before their second roll. Players who fold are out for the rest of the round. Bankrolls carry over by default.
+      </div>
+
+      <div class="section">
+        <h2>Turn History</h2>
+        <div id="history" class="history"><div class="hist muted">No rolls yet.</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="centerTitle">Current Roll</h2>
+      <div id="currentRoll" class="cards"></div>
+
+      <div class="section">
+        <h2>Visible First Keep</h2>
+        <div id="visibleKeep" class="cards"></div>
+      </div>
+
+      <div class="section">
+        <h2>Your Kept Dice</h2>
+        <div id="keptDice" class="cards"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Betting & Showdown</h2>
+
+      <div class="stats">
+        <div class="stat"><div class="label">Ante</div><div class="value" id="anteValue">5</div></div>
+        <div class="stat"><div class="label">Total pot</div><div class="value" id="potValue">0</div></div>
+        <div class="stat"><div class="label">Main pot</div><div class="value" id="mainPotValue">0</div></div>
+        <div class="stat"><div class="label">Side pot</div><div class="value" id="sidePotValue">0</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Table</h2>
+        <div id="players" class="players"></div>
+      </div>
+
+      <div class="section">
+        <h2>Betting Controls</h2>
+        <div id="betSummary" class="status warn">No betting round active.</div>
+        <div class="bet-controls">
+          <div class="inline">
+            <button id="checkCallBtn" class="green" disabled>Check / Call</button>
+            <button id="foldBtn" class="red" disabled>Fold</button>
+          </div>
+          <div class="inline">
+            <label class="tiny" for="raiseAmount">Raise by</label>
+            <input id="raiseAmount" type="number" min="1" step="1" value="5" style="width:110px" />
+            <button id="raiseBtn" class="secondary" disabled>Raise</button>
+            <button id="allInBtn" class="secondary" disabled>All-in</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Bet Log</h2>
+        <div id="betLog" class="log"><div class="logline muted">No betting yet.</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Showdown</h2>
+        <div id="showdownBox" class="showdown muted">Complete a round to see results.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const D36_FACES = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","33","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","34","35","36","15"];
+const minorDice = Array.from({length:25}, (_, i) => ({id:`minor-${i+1}`, type:'d6', category:'minor', label:`Minor d6 #${i+1}`}));
+const majorTypes = ['d3','d4','d5','d6','d7','d8','d9','d10','d11','d12','d13','d14','d15','d16','d17','d18','d19','d20','d21','d22','d24','d30','d36','d48','d60','d100','d120'];
+const majorDice = majorTypes.map((type, i) => ({id:`major-${i+1}`, type, category:'major', label:type === 'd6' ? 'Major d6' : (type === 'd100' ? 'Queen' : (type === 'd120' ? 'King' : type))}));
+const PROFILES = {
+  cautious: { name:'Cautious', aggression:0.28, callBias:-2, opener:'sparse' },
+  balanced: { name:'Balanced', aggression:0.44, callBias:4, opener:'normal' },
+  wild: { name:'Wild', aggression:0.62, callBias:10, opener:'loud' }
+};
+const ORDER = ['you','ai1','ai2','ai3'];
+function baseDieList(){ return [...minorDice, ...majorDice].map(d => ({...d})); }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function sidesOf(type){ return Number(type.slice(1)); }
+function rollFace(type){ if (type==='d3') return randInt(1,3); if (type==='d10') return [10,1,2,3,4,5,6,7,8,9][randInt(0,9)]; if (type==='d36') return D36_FACES[randInt(0,D36_FACES.length-1)]; return randInt(1,sidesOf(type)); }
+function scoreFace(type, face){ if(type==='d10') return (face===3)?0:Number(face); if(type==='d36') return (String(face)==='3'||String(face)==='13')?0:Number(face); return Number(face)===3?0:Number(face); }
+function rollDice(dice){ return dice.map(d => { const face=rollFace(d.type); return {...d, face, score:scoreFace(d.type, face)}; }); }
+function stripRollData(d){ return { id:d.id, type:d.type, category:d.category, label:d.label }; }
+function subtotal(list){ return list.reduce((s,d)=>s+d.score,0); }
+function cardSort(a,b){ if(a.score!==b.score) return a.score-b.score; const as=sidesOf(a.type), bs=sidesOf(b.type); if(as!==bs) return as-bs; return a.label.localeCompare(b.label); }
+function minKeepForRoll(roll, count){ return Math.min(Math.max(0,roll-1),count); }
+function sleep(ms){ return new Promise(res=>setTimeout(res,ms)); }
+function keepUnits(d){
+  return d && d.type==='d36' && String(d.face)==='13' ? 2 : 1;
+}
+function keepUnitCount(list){
+  return list.reduce((sum, d) => sum + keepUnits(d), 0);
+}
+
+const els = {
+  newRoundBtn: document.getElementById('newRoundBtn'),
+  resetBanksBtn: document.getElementById('resetBanksBtn'),
+  autoZerosBtn: document.getElementById('autoZerosBtn'),
+  clearBtn: document.getElementById('clearBtn'),
+  advanceBtn: document.getElementById('advanceBtn'),
+  roundNum: document.getElementById('roundNum'),
+  turnPlayer: document.getElementById('turnPlayer'),
+  rollNum: document.getElementById('rollNum'),
+  minKeep: document.getElementById('minKeep'),
+  selectedCount: document.getElementById('selectedCount'),
+  subtotal: document.getElementById('subtotal'),
+  statusBox: document.getElementById('statusBox'),
+  history: document.getElementById('history'),
+  currentRoll: document.getElementById('currentRoll'),
+  visibleKeep: document.getElementById('visibleKeep'),
+  keptDice: document.getElementById('keptDice'),
+  centerTitle: document.getElementById('centerTitle'),
+  anteValue: document.getElementById('anteValue'),
+  potValue: document.getElementById('potValue'),
+  mainPotValue: document.getElementById('mainPotValue'),
+  sidePotValue: document.getElementById('sidePotValue'),
+  players: document.getElementById('players'),
+  betSummary: document.getElementById('betSummary'),
+  betLog: document.getElementById('betLog'),
+  showdownBox: document.getElementById('showdownBox'),
+  checkCallBtn: document.getElementById('checkCallBtn'),
+  foldBtn: document.getElementById('foldBtn'),
+  raiseBtn: document.getElementById('raiseBtn'),
+  allInBtn: document.getElementById('allInBtn'),
+  raiseAmount: document.getElementById('raiseAmount')
+};
+
+const state = {
+  bankrolls: {you:100, ai1:100, ai2:100, ai3:100},
+  round: 0,
+  ante: 5,
+  pot: 0,
+  phase: 'idle', // idle, human-select, betting, auto-playing, round-over
+  currentTurnActor: null,
+  nextStarter: 'you',
+  turnOrder: [...ORDER],
+  turnIndex: 0,
+  selected: new Set(),
+  history: [],
+  visibleKeep: [],
+  betting: null,
+  showdown: null,
+  players: {},
+  betLog: []
+};
+
+function makeRoundPlayers(){
+  const result = {};
+  for (const id of ORDER){
+    const profile = id==='you' ? null : (id==='ai1' ? 'cautious' : id==='ai2' ? 'balanced' : 'wild');
+    result[id] = {
+      id,
+      name: id==='you' ? 'You' : id==='ai1' ? 'AI 1' : id==='ai2' ? 'AI 2' : 'AI 3',
+      profile,
+      stack: 0,
+      contribution: 0,
+      roundBet: 0,
+      folded: false,
+      allIn: false,
+      finalScore: null,
+      current: [],
+      pool: [],
+      kept: [],
+      firstKeep: [],
+      rollNumber: 0
+    };
+  }
+  return result;
+}
+
+function resetBanks(){
+  state.bankrolls = {you:100, ai1:100, ai2:100, ai3:100};
+  state.round = 0;
+  state.phase = 'idle';
+  state.currentTurnActor = null;
+  state.nextStarter = 'you';
+  state.turnOrder = [...ORDER];
+  state.players = makeRoundPlayers();
+  state.pot = 0;
+  state.selected = new Set();
+  state.history = [];
+  state.visibleKeep = [];
+  state.betting = null;
+  state.showdown = null;
+  state.betLog = [];
+  render();
+}
+
+function initializeRound(){
+  state.round += 1;
+  state.phase = 'idle';
+  state.currentTurnActor = null;
+  state.turnOrder = orderedActorsFrom(state.nextStarter || 'you');
+  state.turnIndex = 0;
+  state.selected = new Set();
+  state.history = [];
+  state.visibleKeep = [];
+  state.betting = null;
+  state.showdown = null;
+  state.betLog = [`Round ${state.round} begins. ${getPlayerName(state.nextStarter || 'you')} goes first this round.`];
+  state.players = makeRoundPlayers();
+  state.pot = 0;
+}
+
+function canStartRound(){
+  return ORDER.every(id => state.bankrolls[id] >= state.ante);
+}
+
+function setupAntes(){
+  for (const id of ORDER){
+    state.bankrolls[id] -= state.ante;
+    const p = state.players[id];
+    p.stack = state.bankrolls[id];
+    p.contribution = state.ante;
+  }
+  state.pot = state.ante * ORDER.length;
+  logAction(`All players ante ${state.ante}.`);
+}
+
+function logAction(msg){ state.betLog.push(msg); }
+function getPlayerName(id){ return id==='you' ? 'You' : id==='ai1' ? 'AI 1' : id==='ai2' ? 'AI 2' : 'AI 3'; }
+function lowStarterRoll(){
+  const a = randInt(1,6);
+  const b = randInt(1,6);
+  const score = (a===3?0:a) + (b===3?0:b);
+  return {dice:[a,b], score};
+}
+function chooseNextStarter(ids){
+  if (!ids || !ids.length) return state.nextStarter || 'you';
+  if (ids.length === 1) return ids[0];
+  let contenders = [...ids];
+  while (contenders.length > 1){
+    const rolls = contenders.map(id => ({id, ...lowStarterRoll()}));
+    const low = Math.min(...rolls.map(r => r.score));
+    contenders = rolls.filter(r => r.score === low).map(r => r.id);
+  }
+  return contenders[0];
+}
+
+function getPlayer(id){ return state.players[id]; }
+function activePlayerIds(){ return ORDER.filter(id => !getPlayer(id).folded); }
+function orderedActorsFrom(id){
+  const idx = ORDER.indexOf(id);
+  return ORDER.slice(idx).concat(ORDER.slice(0, idx));
+}
+function actorsAfter(id){
+  const idx = ORDER.indexOf(id);
+  return ORDER.slice(idx+1).concat(ORDER.slice(0, idx+1));
+}
+function potTotal(){ return ORDER.reduce((sum,id)=>sum+getPlayer(id).contribution,0); }
+function buildPotLayers(){
+  const contributors = ORDER.map(getPlayer).filter(p => p.contribution > 0);
+  if (!contributors.length) return [];
+
+  const levels = [...new Set(contributors.map(p => p.contribution).filter(n => n > 0))].sort((a,b)=>a-b);
+  const layers = [];
+  let prev = 0;
+
+  for (const level of levels){
+    const inLayer = contributors.filter(p => p.contribution >= level);
+    const amount = (level - prev) * inLayer.length;
+    if (amount > 0){
+      layers.push({
+        cap: level,
+        lowerCap: prev,
+        amount,
+        contributors: inLayer.map(p => p.id),
+        eligible: inLayer.filter(p => !p.folded).map(p => p.id)
+      });
+    }
+    prev = level;
+  }
+
+  return layers;
+}
+function computePots(){
+  const layers = buildPotLayers();
+  const total = layers.reduce((sum, layer) => sum + layer.amount, 0);
+  const main = layers.length ? layers[0].amount : 0;
+  const side = layers.length > 1 ? layers.slice(1).reduce((sum, layer) => sum + layer.amount, 0) : 0;
+  return { total, main, side, cap: layers.length ? layers[0].cap : null, layers };
+}
+function setStatus(html, kind='warn'){ els.statusBox.className = `status ${kind}`; els.statusBox.innerHTML = html; }
+function setBetSummary(html, kind='warn'){ els.betSummary.className = `status ${kind}`; els.betSummary.innerHTML = html; }
+
+function renderBetLog(){
+  els.betLog.innerHTML = '';
+  if (!state.betLog.length){ els.betLog.innerHTML = '<div class="logline muted">No betting yet.</div>'; return; }
+  state.betLog.slice().reverse().forEach(line => {
+    const div = document.createElement('div');
+    div.className = 'logline';
+    div.textContent = line;
+    els.betLog.appendChild(div);
+  });
+  els.betLog.scrollTop = els.betLog.scrollHeight;
+}
+
+function renderHistory(){
+  els.history.innerHTML = '';
+  if (!state.history.length){ els.history.innerHTML = '<div class="hist muted">No rolls yet.</div>'; return; }
+  state.history.slice().reverse().forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hist';
+    div.innerHTML = `<strong>${h.actor}</strong> roll ${h.roll}<br>Kept: ${h.kept.length ? h.kept.map(d=>`${d.label}: ${d.face} → ${d.score}`).join(', ') : 'kept nothing'}<br>Remaining: ${h.remaining}<br>Subtotal: <strong>${h.subtotal}</strong>`;
+    els.history.appendChild(div);
+  });
+}
+
+function renderPlayers(){
+  els.players.innerHTML = '';
+  ORDER.forEach(id => {
+    const p = getPlayer(id);
+    const div = document.createElement('div');
+    div.className = `player ${p.folded ? 'folded':''} ${p.allIn ? 'allin':''}`;
+    const profile = p.profile ? PROFILES[p.profile].name : 'Human';
+    const status = p.folded ? 'Folded' : p.finalScore !== null ? `Score ${p.finalScore}` : (p.allIn ? 'All-in' : 'Live');
+    div.innerHTML = `
+      <div class="name"><span>${p.name}</span><span class="muted tiny">${status}</span></div>
+      <div class="meta">
+        Profile: ${profile}<br>
+        Bank: ${state.bankrolls[id]}<br>
+        Stack this round: ${p.stack}<br>
+        In pot: ${p.contribution}<br>
+        Current bet round: ${p.roundBet}
+      </div>
+    `;
+    els.players.appendChild(div);
+  });
+}
+
+function renderStats(){
+  els.roundNum.textContent = state.round;
+  els.turnPlayer.textContent = state.currentTurnActor ? getPlayer(state.currentTurnActor).name : '—';
+  const human = state.players.you || { rollNumber:0, kept:[] };
+  els.rollNum.textContent = state.phase === 'human-select' ? human.rollNumber : (state.phase==='betting' && state.betting ? `${getPlayer(state.betting.opener).name} opener` : '—');
+  els.minKeep.textContent = state.phase === 'human-select' ? minKeepForRoll(human.rollNumber, human.current.length) : '—';
+  els.selectedCount.textContent = (state.phase === 'human-select' && state.currentTurnActor === 'you') ? keepUnitCount(getPlayer('you').current.filter(d => state.selected.has(d.id))) : state.selected.size;
+  els.subtotal.textContent = subtotal(human.kept || []);
+  els.anteValue.textContent = state.ante;
+  const pots = computePots();
+  els.potValue.textContent = pots.total;
+  els.mainPotValue.textContent = pots.main;
+  els.sidePotValue.textContent = pots.side;
+}
+
+function renderCurrentRoll(){
+  els.currentRoll.innerHTML = '';
+  const human = state.players.you;
+  if (state.phase === 'human-select' && state.currentTurnActor === 'you' && human.current.length){
+    els.centerTitle.textContent = `Your Roll ${human.rollNumber}`;
+    [...human.current].sort(cardSort).forEach(d => {
+      const div = document.createElement('div');
+      div.className = `die ${typeThemeClass(d.type, d.category)} ${d.score===0?'zero':''} ${state.selected.has(d.id)?'selected':''}`;
+      const badgeText = (d.type==='d100' || d.type==='d120') ? 'greater' : d.category;
+      div.innerHTML = `<div class="top"><div class="badge">${badgeText}</div>${iconSVGForType(d.type,d.category)}</div><div class="body"><div class="dtype">${d.type}</div><div class="dlabel">${d.label}</div><div class="face">${d.face}</div><div class="score">${scoreHTML(d)}</div></div>`;
+      div.addEventListener('click', ()=>{ if(state.selected.has(d.id)) state.selected.delete(d.id); else state.selected.add(d.id); render(); });
+      els.currentRoll.appendChild(div);
+    });
+  } else {
+    els.centerTitle.textContent = state.phase==='betting' ? 'Betting Round' : 'Current Roll';
+    els.currentRoll.innerHTML = '<div class="hist muted">No selectable roll right now.</div>';
+  }
+}
+
+function renderVisibleKeep(){
+  els.visibleKeep.innerHTML = '';
+  if (!state.visibleKeep.length){
+    els.visibleKeep.innerHTML = '<div class="hist muted">No visible keep yet.</div>';
+    return;
+  }
+  [...state.visibleKeep].sort(cardSort).forEach(d => {
+    const div = document.createElement('div');
+    div.className = `die kept ${typeThemeClass(d.type, d.category)} ${d.score===0?'zero':''}`;
+    const badgeText = (d.type==='d100' || d.type==='d120') ? 'greater' : d.category;
+      div.innerHTML = `<div class="top"><div class="badge">${badgeText}</div>${iconSVGForType(d.type,d.category)}</div><div class="body"><div class="dtype">${d.type}</div><div class="dlabel">${d.label}</div><div class="face">${d.face}</div><div class="score">${scoreHTML(d)}</div></div>`;
+    els.visibleKeep.appendChild(div);
+  });
+}
+
+function renderKeptDice(){
+  els.keptDice.innerHTML = '';
+  const kept = [...(state.players.you?.kept || [])].sort((a,b)=>(a.keptOnRoll||999)-(b.keptOnRoll||999) || cardSort(a,b));
+  if (!kept.length){ els.keptDice.innerHTML = '<div class="hist muted">No kept dice yet.</div>'; return; }
+  kept.forEach(d => {
+    const div = document.createElement('div');
+    div.className = `die kept ${typeThemeClass(d.type, d.category)} ${d.score===0?'zero':''}`;
+    const badgeText = (d.type==='d100' || d.type==='d120') ? 'greater' : d.category;
+      div.innerHTML = `<div class="top"><div class="badge">${badgeText}</div>${iconSVGForType(d.type,d.category)}</div><div class="body"><div class="dtype">${d.type}</div><div class="dlabel">${d.label}<br><span class="muted">roll ${d.keptOnRoll}</span></div><div class="face">${d.face}</div><div class="score">${scoreHTML(d)}</div></div>`;
+    els.keptDice.appendChild(div);
+  });
+}
+
+function renderControls(){
+  const humanSelecting = state.phase === 'human-select' && state.currentTurnActor === 'you';
+  els.autoZerosBtn.disabled = !humanSelecting;
+  els.clearBtn.disabled = !humanSelecting || state.selected.size===0;
+  const min = humanSelecting ? minKeepForRoll(state.players.you.rollNumber, state.players.you.current.length) : 999;
+  const selectedUnits = humanSelecting ? keepUnitCount(state.players.you.current.filter(d => state.selected.has(d.id))) : 0;
+  els.advanceBtn.disabled = !humanSelecting || selectedUnits < min;
+  els.advanceBtn.textContent = state.phase === 'human-select' && state.players.you.rollNumber===1 ? 'Lock First Keep & Enter Betting' : 'Keep Selected';
+
+  const yourTurnBet = state.phase === 'betting' && state.betting && state.betting.actor==='you';
+  els.checkCallBtn.disabled = !yourTurnBet;
+  els.foldBtn.disabled = !yourTurnBet;
+  els.raiseBtn.disabled = !yourTurnBet;
+  els.allInBtn.disabled = !yourTurnBet;
+  if (yourTurnBet){
+    const toCall = Math.max(0, state.betting.currentBet - getPlayer('you').roundBet);
+    els.checkCallBtn.textContent = toCall>0 ? `Call ${Math.min(toCall,getPlayer('you').stack)}` : 'Check';
+  } else {
+    els.checkCallBtn.textContent = 'Check / Call';
+  }
+}
+
+function renderBetSummary(){
+  if (!(state.phase==='betting' && state.betting)){
+    setBetSummary('No betting round active.', 'warn');
+    return;
+  }
+  const b = state.betting;
+  const actor = getPlayer(b.actor);
+  const toCall = Math.max(0, b.currentBet - actor.roundBet);
+  setBetSummary(`<strong>Turn player:</strong> ${getPlayer(b.opener).name}<br><strong>Visible to all:</strong> the opener's first kept dice<br><strong>Acting now:</strong> ${actor.name}<br><strong>Current bet:</strong> ${b.currentBet}<br><strong>To call:</strong> ${toCall}`, actor.id==='you' ? 'good' : 'warn');
+}
+
+function renderShowdown(){
+  if (!state.showdown){
+    els.showdownBox.className = 'showdown muted';
+    els.showdownBox.innerHTML = 'Complete a round to see results.';
+    return;
+  }
+  els.showdownBox.className = 'showdown';
+  els.showdownBox.innerHTML = `<strong>Result</strong><br>${state.showdown.summary}<br><br><strong>Scores</strong><br>${state.showdown.scores.map(s=>`${s.name}: ${s.folded ? 'folded' : s.score}`).join('<br>')}<br><br><strong>Payout</strong><br>${state.showdown.lines.join('<br>')}`;
+}
+
+function render(){
+  renderStats();
+  renderHistory();
+  renderPlayers();
+  renderCurrentRoll();
+  renderVisibleKeep();
+  renderKeptDice();
+  renderBetLog();
+  renderBetSummary();
+  renderShowdown();
+  renderControls();
+
+  if (state.phase==='idle') setStatus('Press <strong>Start Next Round</strong>. The previous round winner will go first. Bankrolls persist until you hit Reset.', 'warn');
+  else if (state.phase==='human-select' && state.currentTurnActor==='you') {
+    const minKeep = minKeepForRoll(state.players.you.rollNumber, state.players.you.current.length);
+    const selected = keepUnitCount(state.players.you.current.filter(d => state.selected.has(d.id)));
+    const remaining = Math.max(0, minKeep - selected);
+    if (remaining > 0) setStatus(`Your turn, roll <strong>${state.players.you.rollNumber}</strong>. Select <strong>${remaining}</strong> more dice. <span class="muted">(${selected} selected)</span>`, 'good');
+    else setStatus(`Your turn, roll <strong>${state.players.you.rollNumber}</strong>. Selection is legal. <span class="muted">(${selected} selected)</span>`, 'good');
+  }
+  else if (state.phase==='betting') setStatus(`Betting round on <strong>${getPlayer(state.betting.opener).name}</strong>'s first keep. Once betting settles, ${getPlayer(state.betting.opener).name} continues their turn.`, 'warn');
+  else if (state.phase==='auto-playing') setStatus(`${getPlayer(state.currentTurnActor).name} is finishing their turn.`, 'warn');
+  else if (state.phase==='round-over') setStatus(state.showdown ? state.showdown.summary : 'Round over.', 'good');
+}
+
+function typeThemeClass(type, category){ return category==='minor' ? 'minor-theme' : `${type}-theme`; }
+function iconSizeForType(type, category){
+  const s = sidesOf(type);
+  const minSize = 18;
+  const maxSize = 34;
+  const t = (Math.log(s) - Math.log(3)) / (Math.log(120) - Math.log(3));
+  const clamped = Math.max(0, Math.min(1, t));
+  const scaled = Math.round(minSize + clamped * (maxSize - minSize));
+  if (category === 'minor') return Math.round(minSize + ((Math.log(6) - Math.log(3)) / (Math.log(120) - Math.log(3))) * (maxSize - minSize));
+  return scaled;
+}
+
+function polygonSVG(sides, label, size=30, crown=''){
+  const fontSize = String(label).length >= 3 ? 8.5 : 10;
+  const crownText = crown ? `<text x="20" y="16.8" text-anchor="middle" font-size="6.9" font-weight="900" fill="white">${crown}</text>` : '';
+  const labelY = crown ? 24.9 : 24;
+
+  if (sides >= 20) return `<svg viewBox="0 0 40 40" class="icon" style="width:${size}px;height:${size}px"><circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2"/><circle cx="20" cy="20" r="10" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>${crownText}<text x="20" y="${labelY}" text-anchor="middle" font-size="${fontSize}" font-weight="900" fill="white">${label}</text></svg>`;
+
+  const n = Math.max(3, Math.min(sides, 12));
+  const pts = [];
+  const cx=20, cy=20, r=14;
+  for (let i=0;i<n;i++){
+    const angle = -Math.PI/2 + i*2*Math.PI/n;
+    pts.push(`${(cx+r*Math.cos(angle)).toFixed(2)},${(cy+r*Math.sin(angle)).toFixed(2)}`);
+  }
+  return `<svg viewBox="0 0 40 40" class="icon" style="width:${size}px;height:${size}px"><polygon points="${pts.join(' ')}" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2"/>${crownText}<text x="20" y="${labelY}" text-anchor="middle" font-size="${fontSize}" font-weight="900" fill="white">${label}</text></svg>`;
+}
+
+function iconSVGForType(type, category){
+  if (category === 'minor') return polygonSVG(6, 'm', iconSizeForType(type, category));
+  const crown = type === 'd100' ? '♕' : (type === 'd120' ? '♔' : '');
+  return polygonSVG(sidesOf(type), String(sidesOf(type)), iconSizeForType(type, category), crown);
+}
+function specialCardNote(d){
+  if (d.type==='d36' && String(d.face)==='13') return '<br><span class="tiny">Special zero • counts as 2 kept dice</span>';
+  return '';
+}
+function scoreHTML(d){
+  return `Scores ${d.score}${specialCardNote(d)}`;
+}
+
+function recordHistory(actorId, roll, kept, remaining, subtotalVal){
+  state.history.push({ actor:getPlayer(actorId).name, roll, kept, remaining, subtotal:subtotalVal });
+}
+function meanScore(type){
+  if (type==='d10') return (10+1+2+0+4+5+6+7+8+9)/10;
+  if (type==='d36'){
+    let sum = 0;
+    for (const f of D36_FACES) sum += scoreFace('d36', f);
+    return sum / D36_FACES.length;
+  }
+  const n = sidesOf(type);
+  let sum = 0;
+  for (let i=1;i<=n;i++) sum += scoreFace(type, i);
+  return sum / n;
+}
+
+function keepValue(d, rollNumber){
+  const mean = meanScore(d.type);
+  const size = sidesOf(d.type);
+  const relative = mean > 0 ? (mean - d.score) / mean : 0;
+  let value = (mean - d.score) + relative * 4;
+
+  if (d.score === 0) value += 0.9;
+  if (d.type === 'd3') value += 2.4;
+  if (size >= 100) value += 6.0;
+  else if (size >= 48) value += 3.4;
+  else if (size >= 24) value += 1.7;
+  else if (size <= 12) value -= 0.15;
+
+  if (d.category === 'minor'){
+    if (rollNumber <= 2) value -= 1.8;
+    else if (rollNumber <= 4) value -= 1.1;
+    else if (rollNumber <= 6) value -= 0.45;
+  }
+
+  return value;
+}
+
+function baseThreshold(d, roll){
+  const s = sidesOf(d.type);
+  const stage = roll<=2 ? 0 : roll<=4 ? 1 : roll<=6 ? 2 : 3;
+  if (d.type==='d3') return [1,1,2,2][stage];
+  if (d.category==='minor') return [0,0,1,2][stage];
+  if (s<=6) return [0,0,1,2][stage];
+  if (s<=12) return [0,1,2,3][stage];
+  if (s<=22) return [2,3,5,7][stage];
+  if (s<=36) return [4,6,8,10][stage];
+  if (s<=60) return [10,14,20,26][stage];
+  return [16,24,36,48][stage];
+}
+function profileKeepScore(d, rollNumber, profileKey='balanced'){
+  const profile = PROFILES[profileKey] || PROFILES.balanced;
+  const size = sidesOf(d.type);
+  let value = keepValue(d, rollNumber);
+
+  if (d.type==='d36' && String(d.face)==='13') value += 3.6;
+  if (d.score===0) value += 0.35 + profile.aggression * 0.65;
+
+  if (profileKey==='cautious'){
+    if (d.category==='minor' && rollNumber <= 4) value -= 1.8;
+    if (d.category==='minor' && rollNumber >= 6) value += 0.8;
+    if (size >= 24) value += 0.9;
+    if (size >= 48 && d.score <= Math.max(10, Math.round(meanScore(d.type) * 0.35))) value += 0.8;
+  } else if (profileKey==='wild'){
+    if (d.category==='minor' && rollNumber <= 4) value += 1.2;
+    if (rollNumber === 1 && d.score === 0) value += 1.0;
+    if (size <= 12) value += 0.5;
+    if (size >= 48 && d.score <= Math.max(14, Math.round(meanScore(d.type) * 0.45))) value += 0.6;
+  } else {
+    if (d.category==='minor' && rollNumber <= 3) value -= 0.45;
+    if (size >= 24) value += 0.35;
+  }
+
+  return value;
+}
+
+function chooseAIDice(rolled, rollNumber, openerMode='normal', profileKey='balanced'){
+  const minKeep = minKeepForRoll(rollNumber, rolled.length);
+  const profileKeySafe = PROFILES[profileKey] ? profileKey : 'balanced';
+  const thresholdNudge = (d) => {
+    const s = sidesOf(d.type);
+    if (profileKeySafe === 'cautious'){
+      if (d.category === 'minor') return rollNumber <= 4 ? -1 : 0;
+      if (d.type === 'd3') return 0;
+      if (s >= 48) return 2;
+      if (s >= 24) return 1;
+      return 0;
+    }
+    if (profileKeySafe === 'wild'){
+      if (d.category === 'minor') return rollNumber <= 4 ? 1 : 0;
+      if (d.score === 0) return 1;
+      if (s >= 48) return 2;
+      if (s >= 24) return 1;
+      return 0;
+    }
+    return 0;
+  };
+
+  let selected = rolled.filter(d => {
+    let threshold = baseThreshold(d, rollNumber) + thresholdNudge(d);
+    if (d.type === 'd36' && String(d.face) === '13') threshold = Math.max(threshold, 0);
+    return d.score <= threshold;
+  });
+
+  if (rollNumber===1){
+    const hardPremium = rolled.filter(d => {
+      const s=sidesOf(d.type);
+      return (s>=100&&d.score<=18)||(s>=48&&d.score<=10)||(s>=24&&d.score<=4)||(d.type==='d3'&&d.score<=1)||(d.type==='d36'&&String(d.face)==='13');
+    });
+    for (const d of hardPremium) if(!selected.find(x=>x.id===d.id)) selected.push(d);
+
+    let minorCap = openerMode==='loud' ? 6 : openerMode==='sparse' ? 1 : 3;
+    let totalCap = openerMode==='loud' ? 10 : openerMode==='sparse' ? 4 : 7;
+    if (profileKeySafe==='cautious'){
+      minorCap = Math.max(0, minorCap - 1);
+    } else if (profileKeySafe==='wild'){
+      minorCap += 1;
+      totalCap += 1;
+    }
+
+    const minors = selected.filter(d=>d.category==='minor').sort(cardSort);
+    const majors = selected.filter(d=>d.category==='major').sort(cardSort);
+    selected = [...majors, ...minors.slice(0, minorCap)].slice(0, totalCap);
+
+    if (openerMode==='sparse'){
+      const premiumMajors = selected.filter(d=>d.category==='major');
+      if (premiumMajors.length) selected = premiumMajors.slice(0, Math.min(3,premiumMajors.length));
+    } else if (openerMode==='loud'){
+      const extraZeros = rolled.filter(d=>d.score===0 && !selected.find(x=>x.id===d.id)).sort(cardSort).slice(0, profileKeySafe==='wild' ? 5 : 4);
+      selected = [...selected, ...extraZeros];
+    }
+  }
+
+  if (keepUnitCount(selected) < minKeep){
+    const extras = rolled.filter(d=>!selected.find(x=>x.id===d.id)).sort(cardSort);
+    for (const d of extras){
+      selected.push(d);
+      if (keepUnitCount(selected) >= minKeep) break;
+    }
+  }
+
+  return [...new Set(selected.map(d=>d.id))];
+}
+
+function firstKeepStrength(kept){
+  if (!kept.length) return 30;
+  const total = subtotal(kept);
+  const zeroes = kept.filter(d=>d.score===0).length;
+  const premiumMajors = kept.filter(d => {
+    const s=sidesOf(d.type);
+    return d.category==='major' && ((s>=100&&d.score<=18)||(s>=48&&d.score<=10)||(s>=24&&d.score<=4)||(s>=13&&d.score<=2));
+  }).length;
+  const minorCount = kept.filter(d=>d.category==='minor').length;
+  const keepTempo = keepUnitCount(kept) - kept.length;
+  let score = 50 + premiumMajors*12 + zeroes*4 + keepTempo*10 + Math.max(0,16-total)*2.2 - Math.max(0,minorCount-3)*4.5 - Math.max(0,kept.length-8)*2;
+  return Math.max(5, Math.min(95, Math.round(score)));
+}
+
+function startBettingRound(openerId, rerollBase){
+  for (const id of ORDER) getPlayer(id).roundBet = 0;
+  state.betting = {
+    active:true,
+    processing:false,
+    opener: openerId,
+    actor: openerId,
+    queue: orderedActorsFrom(openerId).filter(id => {
+      const p = getPlayer(id);
+      return p && !p.folded && !p.allIn;
+    }),
+    currentBet: 0,
+    rerollBaseAfterBet: rerollBase
+  };
+  state.phase = 'betting';
+  state.visibleKeep = getPlayer(openerId).firstKeep.map(d=>({...d}));
+  logAction(`${getPlayer(openerId).name}'s first keep is visible. Betting opens.`);
+}
+
+function currentBetActor(){
+  if (!state.betting || !state.betting.queue || !state.betting.queue.length) return null;
+  return getPlayer(state.betting.queue[0]);
+}
+
+function buildBetQueueAfter(raiserId){
+  return actorsAfter(raiserId).filter(id => {
+    const p = getPlayer(id);
+    return id !== raiserId && p && !p.folded && !p.allIn;
+  });
+}
+
+function commitBet(id, amount){
+  const p = getPlayer(id);
+  const pay = Math.min(p.stack, amount);
+  p.stack -= pay;
+  p.contribution += pay;
+  p.roundBet += pay;
+  if (p.stack===0) p.allIn = true;
+  if (p.roundBet > state.betting.currentBet) state.betting.currentBet = p.roundBet;
+  return pay;
+}
+
+function finishBettingIfNeeded(){
+  if (!(state.phase==='betting' && state.betting)) return false;
+  if (!state.betting.active){
+    finalizeBettingRound();
+    return true;
+  }
+  return false;
+}
+
+function doPlayerCheckCall(id){
+  const p = getPlayer(id);
+  const toCall = Math.max(0, state.betting.currentBet - p.roundBet);
+  if (toCall===0){
+    logAction(`${p.name} checks.`);
+  } else {
+    const paid = commitBet(id, toCall);
+    logAction(`${p.name} calls ${paid}.`);
+  }
+
+  if (state.betting.queue && state.betting.queue[0] === id) state.betting.queue.shift();
+  else if (state.betting.queue) state.betting.queue = state.betting.queue.filter(x => x !== id);
+
+  if (!state.betting.queue || state.betting.queue.length===0){
+    state.betting.active = false;
+  } else {
+    state.betting.actor = state.betting.queue[0];
+  }
+}
+
+function doPlayerFold(id){
+  const p = getPlayer(id);
+  p.folded = true;
+  logAction(`${p.name} folds.`);
+  const live = activePlayerIds();
+  if (live.length <= 1){
+    state.betting.active = false;
+    return;
+  }
+  if (id === state.betting.opener){
+    state.betting.active = false;
+    return;
+  }
+
+  if (state.betting.queue && state.betting.queue[0] === id) state.betting.queue.shift();
+  else if (state.betting.queue) state.betting.queue = state.betting.queue.filter(x => x !== id);
+
+  if (!state.betting.queue || state.betting.queue.length===0){
+    state.betting.active = false;
+  } else {
+    state.betting.actor = state.betting.queue[0];
+  }
+}
+
+function doPlayerRaise(id, raiseBy, forceAllIn=false){
+  const p = getPlayer(id);
+  const toCall = Math.max(0, state.betting.currentBet - p.roundBet);
+  let amount = forceAllIn ? p.stack : toCall + Math.max(0, raiseBy);
+  const paid = commitBet(id, amount);
+  logAction(`${p.name} ${paid<=toCall ? 'calls' : 'raises to'} ${p.roundBet}.`);
+
+  state.betting.queue = buildBetQueueAfter(id);
+  if (!state.betting.queue || state.betting.queue.length===0){
+    state.betting.active = false;
+  } else {
+    state.betting.actor = state.betting.queue[0];
+  }
+}
+
+function playerMaxAdd(id){
+  const p = getPlayer(id);
+  return p.stack;
+}
+
+function resolveBettingControls(){
+  const yourTurn = state.phase==='betting' && state.betting && state.betting.actor==='you';
+  els.checkCallBtn.disabled = !yourTurn;
+  els.foldBtn.disabled = !yourTurn;
+  els.raiseBtn.disabled = !yourTurn;
+  els.allInBtn.disabled = !yourTurn;
+  if (yourTurn){
+    const toCall = Math.max(0, state.betting.currentBet - getPlayer('you').roundBet);
+    els.checkCallBtn.textContent = toCall>0 ? `Call ${Math.min(toCall,getPlayer('you').stack)}` : 'Check';
+  } else {
+    els.checkCallBtn.textContent = 'Check / Call';
+  }
+}
+
+async function continueBettingLoop(){
+  if (!(state.phase==='betting' && state.betting) || state.betting.processing) return;
+  state.betting.processing = true;
+  try {
+    while (state.phase==='betting' && state.betting && state.betting.active){
+      const actor = currentBetActor();
+      if (!actor){
+        state.betting.active = false;
+        break;
+      }
+      if (actor.id === 'you'){
+        render();
+        return;
+      }
+      await sleep(380);
+      const decision = aiBetDecision(actor.id);
+      if (decision.type==='check' || decision.type==='call') doPlayerCheckCall(actor.id);
+      else if (decision.type==='fold') doPlayerFold(actor.id);
+      else if (decision.type==='raise') doPlayerRaise(actor.id, decision.raiseBy, false);
+      else if (decision.type==='allin') doPlayerRaise(actor.id, 0, true);
+      else doPlayerCheckCall(actor.id);
+
+      render();
+      if (state.betting && !state.betting.active) break;
+      await sleep(180);
+    }
+  } finally {
+    if (state.betting) state.betting.processing = false;
+  }
+  finishBettingIfNeeded();
+}
+
+function bestLiveFinalScore(excludeId=null){
+  const finals = ORDER
+    .filter(id => id !== excludeId)
+    .map(getPlayer)
+    .filter(p => p && !p.folded && p.finalScore !== null)
+    .map(p => p.finalScore);
+  return finals.length ? Math.min(...finals) : null;
+}
+
+function aiBetDecision(id){
+  const p = getPlayer(id);
+  const toCall = Math.max(0, state.betting.currentBet - p.roundBet);
+  const opener = getPlayer(state.betting.opener);
+  const strength = firstKeepStrength(opener.firstKeep);
+  const profile = PROFILES[p.profile];
+
+  // If this bot already has a locked final score and another live player has already
+  // posted a strictly better one, it cannot win outright anymore, so fold.
+  const tableBestFinal = bestLiveFinalScore(id);
+  if (p.finalScore !== null && tableBestFinal !== null && tableBestFinal < p.finalScore){
+    return {type:'fold'};
+  }
+
+  // Much stickier than before: small prices get defended a lot, strong visible keeps
+  // still matter, but the bots now accept more pain to stay live.
+  let confidence = 68 + profile.callBias - (strength - 50) * 0.20 - toCall * 1.45 + randInt(-12, 12);
+
+  if (toCall <= 5) confidence += 10;
+  else if (toCall <= 10) confidence += 5;
+
+  const curiosity = 0.24 + profile.aggression * 0.34 + (toCall <= 10 ? 0.18 : 0);
+  const isWild = p.profile === 'wild';
+
+  if (toCall === 0){
+    if (isWild && p.stack >= 15 && confidence > 42 && strength <= 68 && Math.random() < 0.045){
+      return {type:'raise', raiseBy: 15};
+    }
+    if (confidence > 60 && Math.random() < profile.aggression * 0.95){
+      return {type:'raise', raiseBy: strength > 82 ? 10 : 5};
+    }
+    if (confidence > 48 && Math.random() < 0.10 + profile.aggression * 0.15){
+      return {type:'raise', raiseBy: 5};
+    }
+    return {type:'check'};
+  }
+
+  if (p.stack <= toCall){
+    return (confidence > 44 || Math.random() < 0.30 + profile.aggression * 0.18) ? {type:'allin'} : {type:'fold'};
+  }
+
+  if (isWild && p.stack > toCall + 15 && confidence > 34 && confidence < 68 && strength <= 62 && Math.random() < 0.03){
+    return {type:'raise', raiseBy: 15};
+  }
+
+  if (confidence > 74 && Math.random() < profile.aggression * 0.90){
+    return {type:'raise', raiseBy: toCall >= 10 ? 10 : 5};
+  }
+
+  if (confidence < 26 && Math.random() > curiosity){
+    return {type:'fold'};
+  }
+
+  if (confidence > 38 || Math.random() < curiosity){
+    return {type:'call'};
+  }
+
+  return {type:'fold'};
+}
+
+function finalizeBettingRound(){
+  if (!state.betting) return;
+  const openerId = state.betting.opener;
+  const opener = getPlayer(openerId);
+  const rerollBase = state.betting.rerollBaseAfterBet;
+  state.betting = null;
+
+  if (activePlayerIds().length <= 1){
+    finishRoundByLastStanding();
+    return;
+  }
+  if (opener.folded){
+    logAction(`${opener.name} folded out of their own betting round and does not continue the turn.`);
+    startNextTurn();
+    return;
+  }
+
+  if (openerId === 'you'){
+    continueHumanTurn(rerollBase);
+  } else {
+    void autoCompleteAITurn(openerId, rerollBase);
+  }
+}
+
+function continueHumanTurn(pool){
+  const you = getPlayer('you');
+  you.pool = Array.isArray(pool) ? pool : [];
+  if (!you.pool.length){
+    you.finalScore = subtotal(you.kept);
+    logAction(`You finish immediately with ${you.finalScore}.`);
+    startNextTurn();
+    return;
+  }
+  you.rollNumber = 2;
+  you.current = rollDice(you.pool);
+  state.currentTurnActor = 'you';
+  state.phase = 'human-select';
+  state.selected = new Set();
+  logAction('Betting settled. Your roll 2 begins.');
+  render();
+}
+
+async function autoCompleteAITurn(id, pool){
+  state.currentTurnActor = id;
+  state.phase = 'auto-playing';
+  render();
+  const p = getPlayer(id);
+  p.pool = pool;
+  if (!p.pool.length){
+    p.finalScore = subtotal(p.kept);
+    logAction(`${p.name} finishes immediately with ${p.finalScore}.`);
+    startNextTurn();
+    return;
+  }
+  p.rollNumber = 2;
+  while (p.pool.length){
+    const rolled = rollDice(p.pool);
+    const selectedIds = new Set(chooseAIDice(rolled, p.rollNumber, 'normal', p.profile));
+    let keptNow = [];
+    let remaining = [];
+    for (const d of rolled){
+      if (selectedIds.has(d.id)) keptNow.push({...d, keptOnRoll:p.rollNumber});
+      else remaining.push(stripRollData(d));
+    }
+    const min = minKeepForRoll(p.rollNumber, rolled.length);
+    if (keepUnitCount(keptNow) < min){
+      const extras = rolled.filter(d=>!selectedIds.has(d.id)).sort(cardSort);
+      const chosenExtras = [];
+      for (const d of extras){
+        chosenExtras.push(d);
+        if (keepUnitCount(keptNow) + keepUnitCount(chosenExtras) >= min) break;
+      }
+      keptNow = keptNow.concat(chosenExtras.map(d=>({...d, keptOnRoll:p.rollNumber})));
+      const extraIds = new Set(chosenExtras.map(d=>d.id));
+      remaining = rolled.filter(d=>!selectedIds.has(d.id) && !extraIds.has(d.id)).map(stripRollData);
+    }
+    p.kept.push(...keptNow);
+    recordHistory(id, p.rollNumber, keptNow, remaining.length, subtotal(p.kept));
+    logAction(`${p.name} keeps on roll ${p.rollNumber}: ${keptNow.map(d=>`${d.type}:${d.face}→${d.score}`).join(', ') || 'nothing'}.`);
+    p.pool = remaining;
+    p.rollNumber += 1;
+    render();
+    await sleep(180);
+  }
+  p.finalScore = subtotal(p.kept);
+  logAction(`${p.name} final score: ${p.finalScore}.`);
+  startNextTurn();
+}
+
+function finishRoundByLastStanding(){
+  const live = activePlayerIds();
+  if (live.length === 1){
+    const winner = getPlayer(live[0]);
+    winner.stack += state.pot;
+    state.bankrolls[winner.id] = winner.stack;
+    for (const id of ORDER) if (id!==winner.id) state.bankrolls[id] = getPlayer(id).stack;
+    state.nextStarter = winner.id;
+    state.showdown = {
+      summary: `${winner.name} wins the pot of ${state.pot} as the last remaining player.`,
+      scores: ORDER.map(id=>({name:getPlayer(id).name, score:getPlayer(id).finalScore, folded:getPlayer(id).folded})),
+      lines: [`${winner.name} receives ${state.pot}.`, `${winner.name} goes first next round.`]
+    };
+    state.pot = 0;
+    state.phase = 'round-over';
+    render();
+  }
+}
+
+function applyPayouts(payouts){
+  ORDER.forEach(id => {
+    getPlayer(id).stack += payouts[id] || 0;
+    state.bankrolls[id] = getPlayer(id).stack;
+  });
+  state.pot = 0;
+}
+
+function splitAmount(total, ids, payouts){
+  if (!ids.length) return;
+  const base = Math.floor(total / ids.length);
+  let rem = total - base * ids.length;
+  ids.forEach(id => payouts[id] = (payouts[id] || 0) + base);
+  let i=0;
+  while (rem>0){ payouts[ids[i % ids.length]] += 1; rem--; i++; }
+}
+
+function finalizeRoundShowdown(){
+  const live = ORDER.map(getPlayer).filter(p=>!p.folded);
+  const scores = ORDER.map(id=>({name:getPlayer(id).name, score:getPlayer(id).finalScore, folded:getPlayer(id).folded}));
+  const pots = computePots();
+  const payouts = {you:0, ai1:0, ai2:0, ai3:0};
+  const lines = [];
+
+  if (!live.length){
+    state.showdown = { summary:'Everyone folded somehow. No winner.', scores, lines:['No payout.'] };
+    state.phase = 'round-over';
+    render();
+    return;
+  }
+
+  const layers = pots.layers || [];
+  if (!layers.length){
+    state.showdown = { summary:'No pot was built.', scores, lines:['No payout.'] };
+    state.phase = 'round-over';
+    render();
+    return;
+  }
+
+  const layerResults = [];
+  layers.forEach((layer, idx) => {
+    const eligible = layer.eligible.map(getPlayer).filter(Boolean);
+    if (!eligible.length) return;
+    const best = Math.min(...eligible.map(p => p.finalScore));
+    const winners = eligible.filter(p => p.finalScore === best);
+    splitAmount(layer.amount, winners.map(p => p.id), payouts);
+    layerResults.push({ index: idx, label: idx === 0 ? 'Main pot' : `Side pot ${idx}`, amount: layer.amount, best, winners });
+    lines.push(`${winners.map(p=>p.name).join(', ')} split ${idx === 0 ? 'main pot' : `side pot ${idx}`} ${layer.amount}.`);
+  });
+
+  applyPayouts(payouts);
+
+  const primary = layerResults[0];
+  const summary = primary
+    ? `${primary.winners.map(p=>p.name).join(', ')} win the ${layerResults.length === 1 ? 'pot' : 'main pot'} with ${primary.best}.`
+    : 'Round complete.';
+
+  const nextStarterCandidates = primary ? primary.winners.map(p=>p.id) : ORDER.filter(id => payouts[id] > 0);
+  state.nextStarter = chooseNextStarter(nextStarterCandidates.length ? nextStarterCandidates : activePlayerIds());
+  lines.push(`${getPlayerName(state.nextStarter)} goes first next round.`);
+  state.showdown = { summary, scores, lines };
+  state.phase = 'round-over';
+  render();
+}
+
+function startNextTurn(){
+  while (state.turnIndex < state.turnOrder.length){
+    const id = state.turnOrder[state.turnIndex++];
+    const p = getPlayer(id);
+    if (p.folded) continue;
+    if (p.finalScore !== null) continue;
+    beginTurn(id);
+    return;
+  }
+  finalizeRoundShowdown();
+}
+
+async function beginTurn(id){
+  state.currentTurnActor = id;
+  const p = getPlayer(id);
+  if (id === 'you'){
+    p.rollNumber = 1;
+    p.current = rollDice(baseDieList());
+    p.pool = [];
+    state.selected = new Set();
+    state.phase = 'human-select';
+    render();
+  } else {
+    state.phase = 'auto-playing';
+    render();
+    await sleep(220);
+    const rolled = rollDice(baseDieList());
+    const selectedIds = new Set(chooseAIDice(rolled, 1, PROFILES[p.profile].opener, p.profile));
+    const keptNow = [];
+    const remaining = [];
+    for (const d of rolled){
+      if (selectedIds.has(d.id)) keptNow.push({...d, keptOnRoll:1});
+      else remaining.push(stripRollData(d));
+    }
+    p.rollNumber = 1;
+    p.kept.push(...keptNow);
+    p.firstKeep = keptNow.map(d=>({...d}));
+    recordHistory(id, 1, keptNow, remaining.length, subtotal(p.kept));
+    logAction(`${p.name} first keep: ${keptNow.length ? keptNow.map(d=>`${d.type}:${d.face}→${d.score}`).join(', ') : 'nothing'}.`);
+    startBettingRound(id, remaining);
+    render();
+    await continueBettingLoop();
+  }
+}
+
+function humanLockSelected(){
+  const p = getPlayer('you');
+  const min = minKeepForRoll(p.rollNumber, p.current.length);
+  const selectedUnits = keepUnitCount(p.current.filter(d => state.selected.has(d.id)));
+  if (selectedUnits < min) return;
+
+  const keptNow = [];
+  const remaining = [];
+  for (const d of p.current){
+    if (state.selected.has(d.id)) keptNow.push({...d, keptOnRoll:p.rollNumber});
+    else remaining.push(stripRollData(d));
+  }
+  p.kept.push(...keptNow);
+  recordHistory('you', p.rollNumber, keptNow, remaining.length, subtotal(p.kept));
+  p.current = [];
+  state.selected = new Set();
+
+  if (p.rollNumber === 1){
+    p.firstKeep = keptNow.map(d=>({...d}));
+    logAction(`Your first keep: ${keptNow.length ? keptNow.map(d=>`${d.type}:${d.face}→${d.score}`).join(', ') : 'nothing'}.`);
+    startBettingRound('you', remaining);
+    render();
+    continueBettingLoop();
+    return;
+  }
+
+  if (!remaining.length){
+    p.finalScore = subtotal(p.kept);
+    logAction(`Your final score: ${p.finalScore}.`);
+    startNextTurn();
+    return;
+  }
+
+  p.pool = remaining;
+  p.rollNumber += 1;
+  p.current = rollDice(p.pool);
+  render();
+}
+
+async function humanBetAction(kind, raiseBy=0){
+  if (!(state.phase==='betting' && state.betting && state.betting.actor==='you')) return;
+  if (kind==='fold') doPlayerFold('you');
+  else if (kind==='check') doPlayerCheckCall('you');
+  else if (kind==='call') doPlayerCheckCall('you');
+  else if (kind==='raise') doPlayerRaise('you', raiseBy, false);
+  else if (kind==='allin') doPlayerRaise('you', 0, true);
+  render();
+  const finished = finishBettingIfNeeded();
+  if (!finished) await continueBettingLoop();
+}
+
+els.newRoundBtn.addEventListener('click', async ()=>{
+  if (!canStartRound()){
+    setStatus('One or more players has less than the ante. Press <strong>Reset Banks to 100</strong> to continue.', 'bad');
+    return;
+  }
+  initializeRound();
+  setupAntes();
+  startNextTurn();
+  render();
+});
+els.resetBanksBtn.addEventListener('click', resetBanks);
+els.autoZerosBtn.addEventListener('click', ()=>{
+  if (!(state.phase==='human-select' && state.currentTurnActor==='you')) return;
+  state.selected = new Set(getPlayer('you').current.filter(d=>d.score===0).map(d=>d.id));
+  render();
+});
+els.clearBtn.addEventListener('click', ()=>{ state.selected = new Set(); render(); });
+els.advanceBtn.addEventListener('click', humanLockSelected);
+els.checkCallBtn.addEventListener('click', ()=>{
+  if (!(state.phase==='betting' && state.betting && state.betting.actor==='you')) return;
+  const toCall = Math.max(0, state.betting.currentBet - getPlayer('you').roundBet);
+  void humanBetAction(toCall>0 ? 'call' : 'check');
+});
+els.foldBtn.addEventListener('click', ()=>void humanBetAction('fold'));
+els.raiseBtn.addEventListener('click', ()=>void humanBetAction('raise', Number(els.raiseAmount.value||0)));
+els.allInBtn.addEventListener('click', ()=>void humanBetAction('allin'));
+
+resetBanks();
+</script>
+</body>
+</html>
